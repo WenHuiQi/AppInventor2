@@ -1,0 +1,62 @@
+/*!
+ * MindPlus
+ * mpython
+ *
+ */
+#include <MPython.h>
+#include <DFRobot_Iot.h>
+// 函数声明
+void whenTopic0Received0();
+void whenTopic0Received1();
+// 静态常量
+const String topics[5] = {"2018324128/温慧琦","","","",""};
+// 创建对象
+DFRobot_Iot myIot;
+
+
+// 主程序开始
+void setup() {
+	mPython.begin();
+	myIot.setMqttCallback(topic_0, "亮红灯", whenTopic0Received0);
+	myIot.setMqttCallback(topic_0, "亮蓝灯", whenTopic0Received1);
+	myIot.wifiConnect("602iot", "18wulian");
+	while (!myIot.wifiStatus()) {yield();}
+	display.setCursorLine(1);
+	display.printLine(myIot.getWiFiLocalIP());
+	myIot.init("192.168.31.192","siot","","dfrobot", topics, 1883);
+	myIot.connect();
+	while (!myIot.connected()) {yield();}
+	display.setCursorLine(2);
+	display.printLine("MQTT连接成功！");
+}
+void loop() {
+	if ((buttonA.isPressed())) {
+		display.fillInLine(3, 0);
+		rgb.write(-1, 0xFF0000);
+		myIot.publish(topic_0, "亮红灯");
+		display.setCursorLine(3);
+		display.printLine("亮红灯");
+	}
+	if ((buttonB.isPressed())) {
+		display.fillInLine(3, 0);
+		rgb.write(-1, 0x0000FF);
+		myIot.publish(topic_0, "亮蓝灯");
+		display.setCursorLine(3);
+		display.printLine("亮蓝灯");
+	}
+}
+
+
+// 事件回调函数
+void whenTopic0Received0() {
+	display.fillInLine(3, 0);
+	display.setCursorLine(3);
+	display.printLine("亮红灯");
+	rgb.write(-1, 0xFF0000);
+}
+void whenTopic0Received1() {
+	display.fillInLine(3, 0);
+	display.setCursorLine(3);
+	display.printLine("亮蓝灯");
+	rgb.write(-1, 0x0000FF);
+}
